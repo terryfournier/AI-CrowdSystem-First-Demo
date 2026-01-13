@@ -10,7 +10,7 @@ UCLASS()
 class HIDEFROMMONSTER_API AMyActor : public AActor
 {
 	GENERATED_BODY()
-	
+	//Oui
 public:	
 	// Sets default values for this actor's properties
 	AMyActor();
