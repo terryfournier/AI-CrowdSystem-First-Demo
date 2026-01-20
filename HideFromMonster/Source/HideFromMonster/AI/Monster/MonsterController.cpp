@@ -2,6 +2,12 @@
 
 
 #include "MonsterController.h"
+
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyType_Vector.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 
@@ -24,6 +30,50 @@ AMonsterController::AMonsterController()
 	PerceptionComponent->ConfigureSense(*MySightSenses);
 	
 	PerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AMonsterController::HandleSight);
+	
+	BehaviorTreeComponent = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviorTreeComponent"));
+	BlackboardComponent = CreateDefaultSubobject<UBlackboardComponent>(TEXT("BlackboardComponent"));
+}
+
+void AMonsterController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+	
+	if (!BehaviorTree)
+	{
+		BehaviorTree = NewObject<UBehaviorTree>(this, TEXT("BehaviorTree"));
+		BehaviorTree->BlackboardAsset = NewObject<UBlackboardData>(this, TEXT("BlackboardData"));
+		
+		FBlackboardEntry SelfActorEntry;
+		SelfActorEntry.EntryName = "SelfActor";
+		SelfActorEntry.KeyType = NewObject<UBlackboardKeyType_Object>(BehaviorTree->BlackboardAsset);
+		BehaviorTree->BlackboardAsset->Keys.Add(SelfActorEntry);
+		
+		FBlackboardEntry TargetActorEntry;
+		SelfActorEntry.EntryName = "TargetActor";
+		SelfActorEntry.KeyType = NewObject<UBlackboardKeyType_Object>(BehaviorTree->BlackboardAsset);
+		BehaviorTree->BlackboardAsset->Keys.Add(TargetActorEntry);
+		
+		FBlackboardEntry LastKnownLocationEntry;
+		SelfActorEntry.EntryName = "LastKnownLocation";
+		SelfActorEntry.KeyType = NewObject<UBlackboardKeyType_Vector>(BehaviorTree->BlackboardAsset);
+		BehaviorTree->BlackboardAsset->Keys.Add(LastKnownLocationEntry);
+		
+		BlackboardComponent->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
+		
+	}
+}
+
+void AMonsterController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	
+}
+
+void AMonsterController::BeginPlay()
+{
+	Super::BeginPlay();
+	
 }
 
 void AMonsterController::HandleSight(AActor* Actor, FAIStimulus Stimulus)
