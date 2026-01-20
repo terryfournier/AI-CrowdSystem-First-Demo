@@ -15,6 +15,8 @@ AMonsterCharacter::AMonsterCharacter()
 	charaMovement->MaxWalkSpeed = 200.0f;
 	charaMovement->bUseControllerDesiredRotation = true;
 	bUseControllerRotationYaw = false;
+	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -90.f));
+	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 
 }
 
