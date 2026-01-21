@@ -3,6 +3,7 @@
 
 #include "MonsterCharacter.h"
 
+#include "MonsterController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
@@ -17,6 +18,8 @@ AMonsterCharacter::AMonsterCharacter()
 	bUseControllerRotationYaw = false;
 	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -90.f));
 	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+	
+	AIControllerClass = AMonsterController::StaticClass();
 
 }
 

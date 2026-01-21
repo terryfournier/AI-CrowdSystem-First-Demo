@@ -7,8 +7,7 @@
 #include "Perception/AIPerceptionTypes.h"
 #include "MonsterController.generated.h"
 
-class UBehaviorTreeComponent;
-class UBlackboardComponent;
+class AMonsterCharacter;
 
 /**
  * 
@@ -24,11 +23,7 @@ public:
 
 	virtual void OnPossess(APawn* InPawn) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-	TObjectPtr<UBehaviorTreeComponent> BehaviorTreeComponent{nullptr};
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-	TObjectPtr<UBlackboardComponent> BlackboardComponent;
+	UBlackboardComponent* BlackboardComponent;
 
 protected:
 	virtual void Tick(float DeltaTime) override;
@@ -36,12 +31,19 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	UPROPERTY()
-	TObjectPtr<class UBehaviorTree> BehaviorTree;
+	UBehaviorTree* BehaviorTree;
+
+	AMonsterCharacter* MonsterCharacter;
+	
+	AActor* TargetActor;
+	
+	void SetNewTargetActor(AActor* NewTargetActor,const FVector& TargetLocation, const bool bStimulusSuccessfullySensed);
+	
+	void GetCloserActor(AActor* NewTargetActor,const FVector& TargetLocation, const bool bStimulusSuccessfullySensed);
 	
 	UFUNCTION()
 	void HandleSight(AActor* Actor, FAIStimulus Stimulus);
-	
+
 	/*UPROPERTY(EditAnywhere)
 	FBlackboardKeySelector KeySelector;*/
 };
