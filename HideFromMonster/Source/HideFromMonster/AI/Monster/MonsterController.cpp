@@ -36,7 +36,7 @@ void AMonsterController::OnPossess(APawn* InPawn)
 	
 	if (MonsterCharacter)
 	{
-		BehaviorTree = LoadObject<UBehaviorTree>(nullptr, TEXT("/Game/TopDown/AI/Monster/BT_Monster"));
+		BehaviorTree = LoadObject<UBehaviorTree>(nullptr, TEXT("/Game/TopDown/AI/Monster/BT_Monster.BT_Monster"));
 		
 		RunBehaviorTree(BehaviorTree);
 		

@@ -16,6 +16,11 @@ class HIDEFROMMONSTER_API UBTTask_RandomMove : public UBTTaskNode
 public:	
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& RootComp, uint8* NodeMemory);
 	
+	UBTTask_RandomMove();
+	
+	UPROPERTY(EditAnywhere, Category = "Blackboard")
+	FBlackboardKeySelector LocationContainerKey;
+	
 	UPROPERTY(EditAnywhere, Category = "Search")
 	float Radius = 5.0f;
 	
