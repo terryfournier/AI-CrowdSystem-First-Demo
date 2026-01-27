@@ -12,12 +12,18 @@ AMonsterCharacter::AMonsterCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
-	UCharacterMovementComponent* charaMovement = GetCharacterMovement();
-	charaMovement->MaxWalkSpeed = 200.0f;
-	charaMovement->bUseControllerDesiredRotation = true;
-	bUseControllerRotationYaw = false;
-	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -90.f));
-	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+	if (UCharacterMovementComponent* charaMovement = GetCharacterMovement())
+	{
+		charaMovement->MaxWalkSpeed = 200.0f;
+		charaMovement->bUseControllerDesiredRotation = true;
+		bUseControllerRotationYaw = false;
+	}
+	
+	if (USkeletalMeshComponent* SkeletalMesh = GetMesh())
+	{
+		SkeletalMesh->SetRelativeLocation(FVector(0.f, 0.f, -90.f));
+		SkeletalMesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+	}
 	
 	AIControllerClass = AMonsterController::StaticClass();
 

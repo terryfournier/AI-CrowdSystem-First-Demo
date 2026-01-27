@@ -38,10 +38,13 @@ void AMonsterController::OnPossess(APawn* InPawn)
 	{
 		BehaviorTree = LoadObject<UBehaviorTree>(nullptr, TEXT("/Game/TopDown/AI/Monster/BT_Monster.BT_Monster"));
 		
-		RunBehaviorTree(BehaviorTree);
-		
-		BlackboardComponent = GetBlackboardComponent();
-		BlackboardComponent->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
+		if (BehaviorTree)
+		{
+			RunBehaviorTree(BehaviorTree);
+
+			BlackboardComponent = GetBlackboardComponent();
+			BlackboardComponent->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
+		}
 		
 		PerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AMonsterController::HandleSight);
 	}
