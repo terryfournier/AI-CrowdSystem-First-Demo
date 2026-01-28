@@ -11,16 +11,19 @@ void AConcealedController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
+	// Founding the character we possessed
 	ConcealedCharacter = Cast<AConcealedCharacter>(InPawn);
 
 	if (ConcealedCharacter)
 	{
+		// Load the behavior tree for the monster
 		BehaviorTree = LoadObject<UBehaviorTree>(nullptr, TEXT("/Game/TopDown/AI/Concealed/BT_Concealed.BT_Concealed"));
 
 		if (BehaviorTree)
 		{
 			RunBehaviorTree(BehaviorTree);
 
+			// Creation and Initialisation of the blackboard of this controller// Creation and Initialisation of the blackboard of this controller
 			BlackboardComp = GetBlackboardComponent();
 			BlackboardComp->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
 		}

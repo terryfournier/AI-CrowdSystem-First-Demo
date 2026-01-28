@@ -26,12 +26,15 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
+	// Mesh Component that will be used to contain the vertex animation we create
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ConcealedMesh")
 	UStaticMeshComponent* ConcealedMesh; 
 	
+	// Mesh of the vertex animation Idle
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ConcealedMesh")
 	UStaticMesh* ConcealedMeshIdle;
 	
+	// Mesh of the vertex animation walk
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ConcealedMesh")
 	UStaticMesh* ConcealedMeshWalk;
 

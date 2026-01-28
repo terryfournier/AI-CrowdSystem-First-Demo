@@ -16,11 +16,15 @@ class HIDEFROMMONSTER_API AConcealedController : public AAIController
 	GENERATED_BODY()
 	
 public:
+	// Blackboard component of the concealed
 	UBlackboardComponent* BlackboardComp;
 	
 	virtual void OnPossess(APawn* InPawn) override;
 	
+	// Behavior tree of the concealed
+	// Note : The tree can also be added via UPROPERTY 
 	UBehaviorTree* BehaviorTree;
 	
+	// The character this controller possess
 	AConcealedCharacter* ConcealedCharacter;
 };
