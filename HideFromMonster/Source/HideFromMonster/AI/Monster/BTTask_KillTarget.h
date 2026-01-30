@@ -18,6 +18,7 @@ class HIDEFROMMONSTER_API UBTTask_KillTarget : public UBTTaskNode
 	
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& RootComp, uint8* NodeMemory) override;
 	
+	// Key selector to select the actor we want to kill
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
 	FBlackboardKeySelector ActorKey;
 };
