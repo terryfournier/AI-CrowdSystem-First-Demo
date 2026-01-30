@@ -14,4 +14,10 @@ class HIDEFROMMONSTER_API UBTTask_KillTarget : public UBTTaskNode
 {
 	GENERATED_BODY()
 	
+	UBTTask_KillTarget();
+	
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& RootComp, uint8* NodeMemory) override;
+	
+	UPROPERTY(EditAnywhere, Category = "Blackboard")
+	FBlackboardKeySelector ActorKey;
 };
