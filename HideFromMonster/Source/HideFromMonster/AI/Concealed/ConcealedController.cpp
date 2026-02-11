@@ -8,6 +8,8 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "EnvironmentQuery/EnvQuery.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
+#include "HideFromMonster/AI/HiveMind/HiveMindActor.h"
+#include "Kismet/GameplayStatics.h"
 
 void AConcealedController::OnPossess(APawn* InPawn)
 {
@@ -15,6 +17,9 @@ void AConcealedController::OnPossess(APawn* InPawn)
 
 	// Founding the character we possessed
 	ConcealedCharacter = Cast<AConcealedCharacter>(InPawn);
+
+	if (const UWorld* World = GetWorld())
+		HiveMindActor = Cast<AHiveMindActor>(UGameplayStatics::GetActorOfClass(World, AHiveMindActor::StaticClass()));
 
 	if (ConcealedCharacter)
 	{
@@ -39,7 +44,7 @@ void AConcealedController::OnPossess(APawn* InPawn)
 void AConcealedController::LaunchQuery_Implementation()
 {
 	HideQuery = LoadObject<UEnvQuery>(nullptr, TEXT("/Game/TopDown/AI/EQS/EQS_Find.EQS_Find"));
-	
+
 	if (HideQuery)
 	{
 		// Creation of the query request
@@ -53,5 +58,7 @@ void AConcealedController::HideQueryAction(TSharedPtr<FEnvQueryResult> Result)
 	if (Result->IsSuccessful())
 	{
 		MoveToLocation(Result->GetItemAsLocation(0));
+		// Ask for a new place to hide to the Hive Mind
+		HiveMindActor->LaunchQuery(this);
 	}
 }

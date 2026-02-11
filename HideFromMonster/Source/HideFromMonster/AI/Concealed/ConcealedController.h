@@ -7,6 +7,7 @@
 #include "HideFromMonster/Interface/LaunchQueryInterface.h"
 #include "ConcealedController.generated.h"
 
+class AHiveMindActor;
 struct FEnvQueryResult;
 struct FEnvQueryRequest;
 class UEnvQuery;
@@ -20,26 +21,30 @@ class HIDEFROMMONSTER_API AConcealedController : public AAIController, public IL
 	GENERATED_BODY()
 	
 public:
+	virtual void OnPossess(APawn* InPawn) override;
+	
+	// Run the query when we need using the interface
+	virtual void LaunchQuery_Implementation() override;
+	
+private:
 	// Blackboard component of the concealed
 	UBlackboardComponent* BlackboardComp;
 	
-	virtual void OnPossess(APawn* InPawn) override;
+	// Reference to the Hive Mind Actor
+	AHiveMindActor* HiveMindActor;
+	
+	// The character this controller possess
+	AConcealedCharacter* ConcealedCharacter;
 	
 	// Behavior tree of the concealed
 	// Note : The tree can also be added via UPROPERTY 
 	UBehaviorTree* BehaviorTree;
-	
-	// The character this controller possess
-	AConcealedCharacter* ConcealedCharacter;
 	
 	// Contains the Query we want to launch
 	UEnvQuery* HideQuery;
 	
 	// Request that will be used to launch the querry
 	FEnvQueryRequest* HideQueryRequest;
-	
-	// Run the query when we need using the interface
-	virtual void LaunchQuery_Implementation() override;
 	
 	// Function to launch at the end of the query that contains the result
 	void HideQueryAction(TSharedPtr<FEnvQueryResult> Result);

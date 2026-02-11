@@ -39,6 +39,9 @@ public:
 	UFUNCTION()
 	void RemoveCloseController(AActor* OtherActor);
 	
+	// Use to launch the Query
+	void LaunchQuery(AController* ControllerQueryHandler);
+	
 private:
 	// Array that contains all the controller currently overlapped by the Sphere in the monster
 	UPROPERTY()
