@@ -21,16 +21,6 @@ public:
 	AHiveMindActor();
 
 protected:
-	UFUNCTION()
-	void RemoveDestroyedActor(AActor* DestroyedActor);
-	UFUNCTION()
-	void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
-		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
-		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -38,29 +28,22 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
-	UPROPERTY(EditAnywhere, Category = "SearchActor")
-	UClass* ActorToSearch;
-	
+	// Search radius for the Sphere
 	UPROPERTY(EditAnywhere, Category = "SearchActor")
 	float SearchRadius = 500.f;
-	
-	UPROPERTY(VisibleAnywhere, Category = "SearchActor")
-	USphereComponent* SphereDetection;
-	
-	AMonsterCharacter* MonsterChara;
+
+	// function that will handle the system of Character Query
+	UFUNCTION()
+	void AddCloseController(AActor* OtherActor);
+
+	UFUNCTION()
+	void RemoveCloseController(AActor* OtherActor);
 	
 private:
-	// Reference to the world
-	UWorld* World;
-	
-	// Array that contains the collision for the overlap actors
-	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	
-	// Array that will contain actor to ignore 
-	TArray<AActor*> ActorsToIgnore;
-	
+	// Array that contains all the controller currently overlapped by the Sphere in the monster
 	UPROPERTY()
 	TArray<AController*> OverlappingController;
 	
+	// Visual in the editor
 	UBillboardComponent* Billboard;
 };
