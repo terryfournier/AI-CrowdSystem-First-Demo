@@ -41,6 +41,9 @@ void AHiveMindActor::AddCloseController(AActor* OtherActor)
 {
 	// Adding the controller to the array and binding Remove to the OnDestroy function
 	AController* ActorController = OtherActor->GetInstigatorController();
+	if (!ActorController)
+		return;
+	
 	OverlappingController.Add(ActorController);
 	OtherActor->OnDestroyed.AddDynamic(this, &AHiveMindActor::RemoveCloseController);
 	LaunchQuery(ActorController);
