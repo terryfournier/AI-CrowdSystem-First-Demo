@@ -31,96 +31,100 @@ void ABrainlessCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	World = GetWorld();
-
-	if (TargetActor)
-		BrainlessMovementActivate(TargetActor->GetActorLocation());
 }
 
 // Called every frame
 void ABrainlessCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (TargetActor)
+		BrainlessMovementActivate(TargetActor->GetActorLocation());
 }
 
 void ABrainlessCharacter::BrainlessMovementActivate(FVector TargetLocation)
 {
-	ToggleMesh(false);
-	MoveToLocation(TargetLocation);
-}
-
-void ABrainlessCharacter::MoveToLocation(FVector TargetLocation)
-{
 	if (!World)
 		return;
+	ToggleMesh(false);
 
-	World->GetTimerManager().SetTimer(MovementTimerHandle, [this, TargetLocation]()
+	float DeltaSeconds = World->GetDeltaSeconds();
+	StepSize = Speed * DeltaSeconds;
+
+	CurrentLocation = GetActorLocation();
+	MoveToLocation(TargetLocation, DeltaSeconds);
+}
+
+void ABrainlessCharacter::MoveToLocation(FVector TargetLocation, const float DeltaSeconds)
+{
+	FVector HorizontalDirection = GetHorizontalDirection(TargetLocation);
+	HorizontalDirection = HorizontalDirection.GetSafeNormal();
+
+	FVector MoveVector = (HorizontalDirection * StepSize) + AppliedGravity(DeltaSeconds);
+
+	float DistanceToTarget = FVector::Dist(CurrentLocation, TargetLocation);
+
+	if (StepSize >= DistanceToTarget)
 	{
-		float DeltaSeconds = GetWorld()->GetDeltaSeconds();
-		StepSize = Speed * DeltaSeconds;
-		const FVector CurrentLocation = GetActorLocation();
-		
-		// --- 1. Pure horizontal direction toward target, never accumulates ---
-		FVector HorizontalDirection = (TargetLocation - CurrentLocation);
-		HorizontalDirection.Z = 0.f;
-		HorizontalDirection = HorizontalDirection.GetSafeNormal();
+		ToggleMesh(true);
+		SetActorLocation(TargetLocation, false);
+		return;
+	}
 
-		// --- 2. Gravity is its own separate vector, applied independently ---
-		FVector GravityThisFrame = FVector(0.f, 0.f, World->GetGravityZ() * 0.5f * DeltaSeconds);
+	FHitResult HitResult;
+	SetActorLocation(CurrentLocation + MoveVector * StepSize, true, &HitResult);
 
-		// --- 3. Final movement = horizontal + gravity, computed fresh every frame ---
-		FVector MoveVector = (HorizontalDirection * StepSize) + GravityThisFrame;
-		
-		float DistanceToTarget = FVector::Dist(CurrentLocation, TargetLocation);
-
-		if (StepSize >= DistanceToTarget)
+	if (HitResult.bBlockingHit)
+	{
+		// --- Depenetration ---
+		if (HitResult.Time == 0.f)
 		{
-			ToggleMesh(true);
-			SetActorLocation(TargetLocation, false);
-			World->GetTimerManager().ClearTimer(MovementTimerHandle);
-			return;
+			FVector DepenetrationVector = HitResult.ImpactNormal * (HitResult.PenetrationDepth + 0.1f);
+			// small bias to fully clear the wall
+			SetActorLocation(CurrentLocation + DepenetrationVector, false);
+		}
+		else
+		{
+			// Normal hit — move to safe location just before impact
+			SetActorLocation(HitResult.Location, false);
 		}
 
-		FHitResult HitResult;
-		SetActorLocation(CurrentLocation + MoveVector * StepSize, true, &HitResult);
-		
-		if (HitResult.bBlockingHit)
+		// --- Slide along the wall ---
+		FVector SlideDirection = FVector::VectorPlaneProject(HorizontalDirection, HitResult.ImpactNormal).
+			GetSafeNormal();
+
+		// Apply remaining slide movement
+		FVector RemainingStep = SlideDirection * StepSize;
+
+		// Sweep again for the slide to avoid clipping into corners
+		FHitResult SlideHit;
+		SetActorLocation(GetActorLocation() + RemainingStep, true, &SlideHit);
+
+		if (SlideHit.bBlockingHit)
 		{
-			// --- Depenetration ---
-			if (HitResult.Time == 0.f)
-			{
-				FVector DepenetrationVector = HitResult.ImpactNormal * (HitResult.PenetrationDepth + 0.1f);
-				// small bias to fully clear the wall
-				SetActorLocation(CurrentLocation + DepenetrationVector, false);
-			}
-			else
-			{
-				// Normal hit — move to safe location just before impact
-				SetActorLocation(HitResult.Location, false);
-			}
-
-			// --- Slide along the wall ---
-			FVector SlideDirection = FVector::VectorPlaneProject(HorizontalDirection, HitResult.ImpactNormal).
-				GetSafeNormal();
-
-			// Apply remaining slide movement
-			FVector RemainingStep = SlideDirection * StepSize;
-
-			// Sweep again for the slide to avoid clipping into corners
-			FHitResult SlideHit;
-			SetActorLocation(GetActorLocation() + RemainingStep, true, &SlideHit);
-			
-			if (SlideHit.bBlockingHit)
-			{
-				SetActorLocation(SlideHit.Location, false);
-			}
+			SetActorLocation(SlideHit.Location, false);
 		}
-		
-		FVector TargetLocationOnSameAxis = TargetLocation - CurrentLocation;
-		TargetLocationOnSameAxis.Z = 0.f;
-		FRotator NewRotation = FRotationMatrix::MakeFromX(TargetLocationOnSameAxis).Rotator();
-		SetActorRotation(NewRotation);
-		
-	}, 0.01f, true);
+	}
+
+	LookAt(TargetLocation);
+}
+
+FVector ABrainlessCharacter::AppliedGravity(const float DeltaSeconds) const
+{
+	return FVector(0.f, 0.f, World->GetGravityZ() * 0.5f * DeltaSeconds);;
+}
+
+void ABrainlessCharacter::LookAt(const FVector& TargetLocation)
+{
+	FRotator NewRotation = FRotationMatrix::MakeFromX(GetHorizontalDirection(TargetLocation)).Rotator();
+	SetActorRotation(NewRotation);
+}
+
+FVector ABrainlessCharacter::GetHorizontalDirection(const FVector& TargetLocation)
+{
+	FVector HorizontalDirection = (TargetLocation - CurrentLocation);
+	HorizontalDirection.Z = 0.f;
+	return HorizontalDirection;
 }
 
 void ABrainlessCharacter::ToggleMesh(const bool Idle)

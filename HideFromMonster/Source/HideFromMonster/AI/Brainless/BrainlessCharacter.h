@@ -47,9 +47,15 @@ private:
 	
 	float StepSize = 1.0f;
 	
-	FTimerHandle MovementTimerHandle;
+	FVector CurrentLocation;
 	
-	void MoveToLocation(FVector TargetLocation);
+	void MoveToLocation(FVector TargetLocation, const float DeltaSeconds);
+	
+	FVector AppliedGravity(const float DeltaSeconds) const;
+	
+	void LookAt(const FVector& TargetLocation);
+	
+	FVector GetHorizontalDirection(const FVector& TargetLocation);
 	
 	void ToggleMesh(const bool Idle);
 };
