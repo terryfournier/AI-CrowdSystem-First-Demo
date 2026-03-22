@@ -80,32 +80,10 @@ void ABrainlessCharacter::MoveToLocation(FVector TargetLocation)
 			return;
 		}
 
-		// --- Use capsule shape for the sweep ---
-		FCollisionShape CapsuleShape = FCollisionShape::MakeCapsule(
-			CapsuleCollider->GetScaledCapsuleRadius(),
-			CapsuleCollider->GetScaledCapsuleHalfHeight()
-		);
-
-		FCollisionQueryParams Params;
-		Params.AddIgnoredActor(this);
-		Params.bTraceComplex = false;
-
 		FHitResult HitResult;
-		bool bHit = World->SweepSingleByChannel(
-			HitResult,
-			CurrentLocation,
-			CurrentLocation + MoveVector * StepSize,
-			GetActorQuat(),
-			ECC_WorldStatic,
-			CapsuleShape,
-			Params
-		);
-
-		if (!bHit)
-		{
-			SetActorLocation(CurrentLocation + MoveVector * StepSize, false);
-		}
-		else
+		SetActorLocation(CurrentLocation + MoveVector * StepSize, true, &HitResult);
+		
+		if (HitResult.bBlockingHit)
 		{
 			// --- Depenetration ---
 			if (HitResult.Time == 0.f)
@@ -124,34 +102,14 @@ void ABrainlessCharacter::MoveToLocation(FVector TargetLocation)
 			FVector SlideDirection = FVector::VectorPlaneProject(HorizontalDirection, HitResult.ImpactNormal).
 				GetSafeNormal();
 
-			
-			/*float GravityIntoWall = FVector::DotProduct(GravityThisFrame, HitResult.ImpactNormal);
-			FVector CorrectedGravity = GravityThisFrame;
-			if (GravityIntoWall < 0.f)
-			{
-				CorrectedGravity -= HitResult.ImpactNormal * GravityIntoWall;
-			}*/
-
 			// Apply remaining slide movement
 			FVector RemainingStep = SlideDirection * StepSize;
 
 			// Sweep again for the slide to avoid clipping into corners
 			FHitResult SlideHit;
-			bool bSlideHit = World->SweepSingleByChannel(
-				SlideHit,
-				GetActorLocation(),
-				GetActorLocation() + RemainingStep,
-				GetActorQuat(),
-				ECC_WorldStatic,
-				CapsuleShape,
-				Params
-			);
-
-			if (!bSlideHit)
-			{
-				SetActorLocation(GetActorLocation() + RemainingStep, false);
-			}
-			else
+			SetActorLocation(GetActorLocation() + RemainingStep, true, &SlideHit);
+			
+			if (SlideHit.bBlockingHit)
 			{
 				SetActorLocation(SlideHit.Location, false);
 			}
