@@ -40,7 +40,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Brainless")
 	AActor* TargetActor;
 	
-	void BrainlessMovementActivate(FVector TargetLocation);
+	void BrainlessMovementActivate(FVector NewTargetLocation);
 	
 private:
 	UWorld* World;
@@ -49,13 +49,17 @@ private:
 	
 	FVector CurrentLocation;
 	
-	void MoveToLocation(FVector TargetLocation, const float DeltaSeconds);
+	FVector TargetLocation;
+	
+	void MoveToLocation(const float DeltaSeconds);
 	
 	FVector AppliedGravity(const float DeltaSeconds) const;
 	
-	void LookAt(const FVector& TargetLocation);
+	void HandlingCollision(const FHitResult& HitResult);
 	
-	FVector GetHorizontalDirection(const FVector& TargetLocation);
+	void LookAt();
+	
+	FVector GetHorizontalDirection();
 	
 	void ToggleMesh(const bool Idle);
 };
