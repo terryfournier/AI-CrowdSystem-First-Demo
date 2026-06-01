@@ -29,14 +29,14 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	
 	// Search radius for the Sphere
-	UPROPERTY(EditAnywhere, Category = "SearchActor")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SearchActor")
 	float SearchRadius = 500.f;
 
 	// function that will handle the system of Character Query
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "SearchActor")
 	void AddCloseController(AActor* OtherActor);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "SearchActor")
 	void RemoveCloseController(AActor* OtherActor);
 	
 	// Use to launch the Query
