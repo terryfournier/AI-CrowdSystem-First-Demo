@@ -9,6 +9,7 @@
 class USphereComponent;
 DECLARE_LOG_CATEGORY_EXTERN(LogHiveMindActor, Log, All);
 
+class UBillboardComponent;
 class AMonsterCharacter;
 
 UCLASS()
